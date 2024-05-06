@@ -27,3 +27,7 @@ npm run dev
 ```sh
 npm run build
 ```
+
+
+# levantar terminal de la api db.json
+json-server --watch db.json --port 4000

@@ -1,9 +1,10 @@
 <script setup>
+    import { onMounted, reactive } from 'vue'
     import ClientService from '../services/ClientService'
     import RouterLink from '../components/UI/RouterLink.vue'
     import Heading from '@/components/UI/Heading.vue'
     import { FormKit } from '@formkit/vue'
-    import { useRouter } from 'vue-router'
+    import { useRouter, useRoute } from 'vue-router';
 
     defineProps({
         title: {
@@ -11,14 +12,26 @@
         }
     })
 
+    
     const router = useRouter()
-   
+    const route = useRoute()
+
+    const { id } = route.params
+
+    const formData = reactive({})
+
+    onMounted(() => {
+        ClientService.getClient(id)
+            .then(({data}) => {
+                Object.assign(formData, data)
+            })
+            .catch(error => console.log(error))
+    })
 
     const handleSubmit = (data) => {
-        data.state = 1
-        ClientService.addClients(data)
-            .then(response => {
-                router.push({name: 'home'})
+        ClientService.updateClient(id,data)
+            .then(() => {
+                router.push({name: "home"})
             })
             .catch(error => console.log(error))
     }
@@ -36,7 +49,7 @@
             <div class="mx-auto md:w-2/3 py-20 px-6">
                 <FormKit
                     type="form"
-                    submit-label="Agregar Cliente"
+                    submit-label="Guardar Cambios"
                     incomplete-message="Error campos obligatorios incompletos"
                     @submit="handleSubmit"
                 >
@@ -47,6 +60,7 @@
                         placeholder="Nombre del cliente*" 
                         validation="required"
                         :validation-messages="{ required: 'El Nombre del cliente es obligatorio' }"
+                        v-model="formData.name"
                     />
                     <FormKit 
                         type="text"
@@ -55,6 +69,7 @@
                         placeholder="Apellido del cliente*" 
                         validation="required"
                         :validation-messages="{ required: 'El Apellido del cliente es obligatorio' }"
+                        v-model="formData.lastName"
                     />
                     <FormKit 
                         type="email"
@@ -66,6 +81,7 @@
                             required: 'El Email del cliente es obligatorio', 
                             email: 'El correo ingresado no es válido' 
                         }"
+                        v-model="formData.email"
                     />
                     <FormKit 
                         type="text"
@@ -74,18 +90,21 @@
                         placeholder="Teléfono: XXX-XXX-XXXX" 
                         validation="?matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/"
                         :validation-messages="{ matches: 'El formato no es válido'}"
+                        v-model="formData.phone"
                     />
                     <FormKit 
                         type="text"
                         label="Empresa"  
                         name="company" 
                         placeholder="Empresa del cliente" 
+                        v-model="formData.company"
                     />
                     <FormKit 
                         type="text"
                         label="Puesto" 
                         name="position"  
                         placeholder="Puesto del cliente" 
+                        v-model="formData.position"
                     />
                     
                     <p class="flex justify-end">* Los campos son obligatorios</p>
