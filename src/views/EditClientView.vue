@@ -12,7 +12,6 @@
         }
     })
 
-    
     const router = useRouter()
     const route = useRoute()
 
@@ -106,9 +105,7 @@
                         placeholder="Puesto del cliente" 
                         v-model="formData.position"
                     />
-                    
-                    <p class="flex justify-end">* Los campos son obligatorios</p>
-                    
+                    <p class="flex justify-end">* Los campos son obligatorios</p> 
                 </FormKit>
             </div>
         </div>

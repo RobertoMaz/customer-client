@@ -22,7 +22,6 @@ const router = createRouter({
       component: () => import('../views/EditClientView.vue'),
       props: { title: 'Editar Cliente' }
     }
-    
   ]
 })
 

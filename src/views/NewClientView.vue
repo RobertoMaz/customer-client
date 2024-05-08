@@ -12,7 +12,6 @@
     })
 
     const router = useRouter()
-   
 
     const handleSubmit = (data) => {
         data.state = 1
@@ -87,9 +86,7 @@
                         name="position"  
                         placeholder="Puesto del cliente" 
                     />
-                    
-                    <p class="flex justify-end">* Los campos son obligatorios</p>
-                    
+                    <p class="flex justify-end">* Los campos son obligatorios</p>    
                 </FormKit>
             </div>
         </div>

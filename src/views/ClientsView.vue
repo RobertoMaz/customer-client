@@ -19,7 +19,6 @@
             .catch( error => console.log("Hubo un error"))
     })
 
-    
     const existClients = computed(() => {
         return clients.value.length > 0
     })
@@ -40,8 +39,6 @@
             })
             .catch(error => console.log(error))
     }
-
-    
 </script>
 
 <template>
