@@ -4,6 +4,7 @@
     import Heading from '@/components/UI/Heading.vue'
     import { FormKit } from '@formkit/vue'
     import { useRouter } from 'vue-router'
+    import { inject } from 'vue'
 
     defineProps({
         title: {
@@ -13,13 +14,25 @@
 
     const router = useRouter()
 
-    const handleSubmit = (data) => {
+    const toast = inject('toast')
+
+    const handleSubmit = async(data) => {
         data.state = 1
-        ClientService.addClients(data)
-            .then(response => {
+       await ClientService.addClients(data)
+            .then(({data}) => {
+                toast.open({
+                    message: data.msg,
+                    type: 'success'
+                })
                 router.push({name: 'home'})
             })
-            .catch(error => console.log(error))
+            .catch(error => {
+                console.log(error)
+                toast.open({
+                    message: error.response.data.msg,
+                    type: 'error'
+                })
+            })
     }
 </script>
 
@@ -43,7 +56,7 @@
                         type="text"
                         label="Nombre"  
                         name="name" 
-                        placeholder="Nombre del cliente*" 
+                        placeholder="Nombre del cliente *" 
                         validation="required"
                         :validation-messages="{ required: 'El Nombre del cliente es obligatorio' }"
                     />
@@ -51,7 +64,7 @@
                         type="text"
                         label="Apellido" 
                         name="lastName"  
-                        placeholder="Apellido del cliente*" 
+                        placeholder="Apellido del cliente *" 
                         validation="required"
                         :validation-messages="{ required: 'El Apellido del cliente es obligatorio' }"
                     />
@@ -59,7 +72,7 @@
                         type="email"
                         label="Email"  
                         name="email" 
-                        placeholder="Email del cliente*" 
+                        placeholder="Email del cliente *" 
                         validation="required | email"
                         :validation-messages="{ 
                             required: 'El Email del cliente es obligatorio', 
@@ -70,9 +83,7 @@
                         type="text"
                         label="Teléfono"
                         name="phone"   
-                        placeholder="Teléfono: XXX-XXX-XXXX" 
-                        validation="?matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/"
-                        :validation-messages="{ matches: 'El formato no es válido'}"
+                        placeholder="Teléfono" 
                     />
                     <FormKit 
                         type="text"

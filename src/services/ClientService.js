@@ -18,7 +18,7 @@ export default {
     },
 
     changeState(id, state){
-        return api.patch('/clients/' + id, state)
+        return api.patch('/clients/state/' + id, state)
     },
 
     deleteClient(id){

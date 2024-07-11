@@ -1,5 +1,5 @@
 <script setup>
-    import { computed, onMounted, ref} from 'vue'
+    import { computed, onMounted, ref, inject} from 'vue'
     import ClientService from '../services/ClientService'
     import RouterLink from '../components/UI/RouterLink.vue'
     import Heading from '@/components/UI/Heading.vue'
@@ -13,8 +13,10 @@
 
     const clients = ref([])
 
-    onMounted(() => {
-        ClientService.getClients()
+    const toast = inject('toast')
+
+    onMounted(async () => {
+        await ClientService.getClients()
             .then(({data}) => clients.value = data)
             .catch( error => console.log("Hubo un error"))
     })
@@ -23,18 +25,28 @@
         return clients.value.length > 0
     })
     
-    const deleteClient = (id) => {
-        ClientService.deleteClient(id)
-            .then(() => {
-                clients.value = clients.value.filter( client => client.id !== id)
+    const deleteClient = async (id) => {
+        await ClientService.deleteClient(id)
+            .then(({data}) => {
+                clients.value = clients.value.filter( client => client._id !== id)
+                toast.open({
+                    message: data.msg,
+                    type: 'success'
+                })
             })
-            .catch(error => console.log(error))
+            .catch(error => {
+                console.log(error)
+                toast.open({
+                    message: error.response.data.msg,
+                    type: 'error'
+                })
+            })
     }
 
-    const updateState = ({id, state}) => {
-        ClientService.changeState(id, {state: !state})
+    const updateState = async ({id, state}) => {
+       await ClientService.changeState(id, {state: !state})
             .then(() => {
-                const index = clients.value.findIndex( client => client.id === id)
+                const index = clients.value.findIndex( client => client._id === id)
                 clients.value[index].state = !state
             })
             .catch(error => console.log(error))
@@ -57,6 +69,7 @@
                         <tr>
                             <th scope="col" class="p-2 text-left text-sm font-extrabold text-gray-600">Nombre</th>
                             <th scope="col" class="p-2 text-left text-sm font-extrabold text-gray-600">Empresa</th>
+                            <th scope="col" class="p-2 text-left text-sm font-extrabold text-gray-600">Teléfono</th>
                             <th scope="col" class="p-2 text-left text-sm font-extrabold text-gray-600">Estado</th>
                             <th scope="col" class="p-2 text-left text-sm font-extrabold text-gray-600">Acciones</th>
                         </tr>
@@ -64,7 +77,7 @@
                         <tbody class="divide-y divide-gray-200 bg-white">
                             <Client 
                                 v-for="client in clients"
-                                :key="client.id"
+                                :key="client._id"
                                 :client="client"
                                 @update-state="updateState"
                                 @delete-client="deleteClient"

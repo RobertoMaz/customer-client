@@ -1,5 +1,5 @@
 <script setup>
-    import { onMounted, reactive } from 'vue'
+    import { onMounted, reactive, inject } from 'vue'
     import ClientService from '../services/ClientService'
     import RouterLink from '../components/UI/RouterLink.vue'
     import Heading from '@/components/UI/Heading.vue'
@@ -15,6 +15,8 @@
     const router = useRouter()
     const route = useRoute()
 
+    const toast = inject('toast')
+
     const { id } = route.params
 
     const formData = reactive({})
@@ -29,10 +31,20 @@
 
     const handleSubmit = (data) => {
         ClientService.updateClient(id,data)
-            .then(() => {
+            .then(({data}) => {
+                toast.open({
+                    message: data.msg,
+                    type: 'success'
+                })
                 router.push({name: "home"})
             })
-            .catch(error => console.log(error))
+            .catch(error => {
+                console.log(error)
+                toast.open({
+                    message: error.response.data.msg,
+                    type: 'error'
+                })
+            })
     }
 </script>
 
@@ -56,7 +68,7 @@
                         type="text"
                         label="Nombre"  
                         name="name" 
-                        placeholder="Nombre del cliente*" 
+                        placeholder="Nombre del cliente *" 
                         validation="required"
                         :validation-messages="{ required: 'El Nombre del cliente es obligatorio' }"
                         v-model="formData.name"
@@ -65,7 +77,7 @@
                         type="text"
                         label="Apellido" 
                         name="lastName"  
-                        placeholder="Apellido del cliente*" 
+                        placeholder="Apellido del cliente *" 
                         validation="required"
                         :validation-messages="{ required: 'El Apellido del cliente es obligatorio' }"
                         v-model="formData.lastName"
@@ -74,7 +86,7 @@
                         type="email"
                         label="Email"  
                         name="email" 
-                        placeholder="Email del cliente*" 
+                        placeholder="Email del cliente *" 
                         validation="required | email"
                         :validation-messages="{ 
                             required: 'El Email del cliente es obligatorio', 
@@ -86,9 +98,7 @@
                         type="text"
                         label="Teléfono"
                         name="phone"   
-                        placeholder="Teléfono: XXX-XXX-XXXX" 
-                        validation="?matches:/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/"
-                        :validation-messages="{ matches: 'El formato no es válido'}"
+                        placeholder="Teléfono" 
                         v-model="formData.phone"
                     />
                     <FormKit 
